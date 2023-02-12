@@ -58,7 +58,7 @@ class ProductController extends ChangeNotifier {
     String url = await storageRef.getDownloadURL();
 
     await firestore.collection("products").add(ProductModel(
-            name: name,
+            name: name.toLowerCase(),
             desc: desc,
             image: url,
             price: double.tryParse(price) ?? 0,

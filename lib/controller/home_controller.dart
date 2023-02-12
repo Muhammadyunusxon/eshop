@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:http/http.dart' as http;
 
 import '../domen/model/category_model.dart';
 import '../domen/model/product_model.dart';
 
 class HomeController extends ChangeNotifier {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
 
   List<ProductModel> listOfProduct = [];
   List<ProductModel> listOfFavouriteProduct = [];
@@ -13,8 +19,73 @@ class HomeController extends ChangeNotifier {
   bool setFilter = false;
   bool isProductLoading = true;
   bool isLoading = false;
-  int selectIndex = -1;
+  List<CategoryModel> listOfSelectIndex = [];
+
   RangeValues currentRangeValues = const RangeValues(0, 5000);
+
+  createDynamicLink(ProductModel productModel) async {
+    var productLink = 'https://demos.uz/${productModel.id}';
+
+    const dynamicLink =
+        'https://firebasedynamiclinks.googleapis.com/v1/shortLinks?key=AIzaSyDWKbyAQGQh9znJuM0hHlUgayw_-wwZjmQ';
+
+    final dataShare = {
+      "dynamicLinkInfo": {
+        "domainUriPrefix": 'https://eshopuz.page.link',
+        "link": productLink,
+        "androidInfo": {
+          "androidPackageName": 'uz.demos.eshop',
+        },
+        "iosInfo": {
+          "iosBundleId": "uz.demos.eshop",
+        },
+        "socialMetaTagInfo": {
+          "socialTitle":
+              (productModel.name?.substring(0, 1).toUpperCase() ?? "") +
+                  (productModel.name?.substring(1) ?? ""),
+          "socialDescription": "Description: ${productModel.desc}",
+          "socialImageLink": "${productModel.image}",
+        }
+      }
+    };
+
+    final res =
+        await http.post(Uri.parse(dynamicLink), body: jsonEncode(dataShare));
+
+    var shareLink = jsonDecode(res.body)['shortLink'];
+    await FlutterShare.share(
+      text: (productModel.name?.substring(0, 1).toUpperCase() ?? "") +
+          (productModel.name?.substring(1) ?? ""),
+      title: "Description: ${productModel.desc}",
+      linkUrl: shareLink,
+    );
+
+    debugPrint(shareLink);
+  }
+
+  initDynamicLinks(ValueChanged onSuccess) async {
+    dynamicLinks.onLink.listen((dynamicLinkData) {
+      debugPrint('dynamic link ${dynamicLinkData.link}');
+      String docId = dynamicLinkData.link
+          .toString()
+          .substring(dynamicLinkData.link.toString().lastIndexOf("/") + 1);
+      onSuccess(docId);
+    }).onError((error) {
+      debugPrint("Dynamic link error${error.message}");
+    });
+
+    final PendingDynamicLinkData? data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri? deepLink = data?.link;
+
+    if (deepLink != null) {
+      String docId = deepLink
+          .toString()
+          .substring(deepLink.toString().lastIndexOf("/") + 1);
+      // ignore: use_build_context_synchronously
+      onSuccess(docId);
+    }
+  }
 
   getProduct({bool isLimit = true}) async {
     isProductLoading = true;
@@ -81,31 +152,36 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
-  changeIndex(int index) async {
-    if (selectIndex == index) {
-      selectIndex = -1;
+  changeIndex(CategoryModel model) async {
+    if (listOfSelectIndex.contains(model)) {
+      listOfSelectIndex.remove(model);
       getProduct(isLimit: false);
-      setFilter = false;
+
     } else {
       setFilter = true;
-      selectIndex = index;
-      var res = await firestore
-          .collection("products")
-          .where("category", isEqualTo: listOfCategory[selectIndex].id)
-          .get();
+      listOfSelectIndex.add(model);
       listOfProduct.clear();
-      for (var element in res.docs) {
-        listOfProduct
-            .add(ProductModel.fromJson(data: element.data(), id: element.id));
+      for (int i = 0; i < listOfSelectIndex.length; i++) {
+        var res = await firestore
+            .collection("products")
+            .where("category", isEqualTo: listOfSelectIndex[i].id)
+            .get();
+
+        for (var element in res.docs) {
+          listOfProduct
+              .add(ProductModel.fromJson(data: element.data(), id: element.id));
+        }
       }
+    }
+    if(listOfSelectIndex.isEmpty){
+      setFilter = false;
     }
 
     notifyListeners();
-    getFavourites();
   }
 
   changeCurrent(RangeValues value) async {
-    isProductLoading=true;
+    isProductLoading = true;
     currentRangeValues = value;
 
     notifyListeners();
@@ -119,14 +195,13 @@ class HomeController extends ChangeNotifier {
       listOfProduct
           .add((ProductModel.fromJson(data: element.data(), id: element.id)));
     }
-    isProductLoading=false;
+    isProductLoading = false;
     notifyListeners();
     getFavourites();
-
   }
 
   searchProduct(String name) async {
-    isProductLoading=true;
+    isProductLoading = true;
     notifyListeners();
     if (name.isEmpty) {
       getProduct(isLimit: false);
@@ -139,9 +214,7 @@ class HomeController extends ChangeNotifier {
             .add((ProductModel.fromJson(data: element.data(), id: element.id)));
       }
     }
-    isProductLoading=false;
+    isProductLoading = false;
     notifyListeners();
-    getFavourites();
   }
-
 }

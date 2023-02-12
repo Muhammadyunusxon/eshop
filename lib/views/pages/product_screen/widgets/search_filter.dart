@@ -71,11 +71,11 @@ class _SearchFilterState extends State<SearchFilter> {
                 for (int i = 0; i < state.listOfCategory.length; i++)
                   GestureDetector(
                     onTap: () {
-                      event.changeIndex(i);
+                      event.changeIndex(state.listOfCategory[i]);
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                          color: state.selectIndex == i
+                          color: state.listOfSelectIndex.contains(state.listOfCategory[i])
                               ? kBrandColor
                               : kMediumColor,
                           borderRadius: BorderRadius.circular(12)),

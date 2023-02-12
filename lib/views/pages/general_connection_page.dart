@@ -1,11 +1,15 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:eshop/controller/home_controller.dart';
 import 'package:eshop/views/pages/add_product/add_product.dart';
 import 'package:eshop/views/pages/product_screen/all_product_screen.dart';
 import 'package:eshop/views/pages/product_screen/favourite_screen.dart';
+import 'package:eshop/views/pages/product_screen/product_page.dart';
 import 'package:eshop/views/utils/constants.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:proste_indexed_stack/proste_indexed_stack.dart';
+import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class GeneralPage extends StatefulWidget {
@@ -16,7 +20,19 @@ class GeneralPage extends StatefulWidget {
 }
 
 class _GeneralPageState extends State<GeneralPage> {
+  final FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
   int current = 0;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeController>().initDynamicLinks((docId) {
+        Navigator.push(context, MaterialPageRoute(builder: (_)=>ProductPage(docId: docId,)));
+      });
+    });
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {

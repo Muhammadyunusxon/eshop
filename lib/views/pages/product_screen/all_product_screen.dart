@@ -34,7 +34,7 @@ class _AllProductScreenState extends State<AllProductScreen> {
             const MyAppBar(),
             Expanded(
               child: state.isProductLoading
-                  ? Center(
+                  ? const Center(
                       child: CircularProgressIndicator(
                       color: kBrandColor,
                     ))

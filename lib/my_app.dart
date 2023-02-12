@@ -10,6 +10,7 @@ import 'controller/product_controller.dart';
 import 'views/pages/general_connection_page.dart';
 
 class MyApp extends StatelessWidget {
+
   const MyApp({super.key});
 
   @override

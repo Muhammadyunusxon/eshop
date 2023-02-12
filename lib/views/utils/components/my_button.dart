@@ -26,9 +26,11 @@ class MyButton extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.r), color: kBrandColor),
         child: isLoading
-            ? const CircularProgressIndicator(
-                color: kWhiteColor,
-              )
+            ? const Center(
+              child:  CircularProgressIndicator(
+                  color: kWhiteColor,
+                ),
+            )
             : Center(
                 child: Text(
                 title,

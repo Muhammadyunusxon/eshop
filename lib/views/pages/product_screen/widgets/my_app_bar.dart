@@ -16,18 +16,30 @@ class MyAppBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 10.h),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const SizedBox.shrink(),
+          Spacer(),
+          Wrap(
+            spacing: 5,
+            children: [
+              for (int i = 0; i < state.listOfSelectIndex.length; i++)
+                Text(
+                  state.listOfSelectIndex[i].name ?? '',
+                  overflow: TextOverflow.ellipsis,
+                  style: Style.textStyleSemiBold(size: 16),
+                ),
+            ],
+          ),
           Text(
-           state.setFilter? state.listOfCategory[state.selectIndex].name ?? '':"All",
+            state.setFilter ? "" : "All",
             style: Style.textStyleSemiBold(size: 18),
           ),
+          Spacer(),
           IconButton(
             onPressed: () {
               showBottomSheet(
-                backgroundColor: Colors.transparent,
-                  context: context, builder: (context) => const SearchFilter());
+                  backgroundColor: Colors.transparent,
+                  context: context,
+                  builder: (context) => const SearchFilter());
             },
             icon: SvgPicture.asset("assets/svg/search.svg", height: 16),
           ),

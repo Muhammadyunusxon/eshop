@@ -46,7 +46,7 @@ class ImageField extends StatelessWidget {
                   File(context
                       .watch<ProductController>()
                       .imagePath),
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
               )),
         ),
