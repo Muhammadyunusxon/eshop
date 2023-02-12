@@ -24,8 +24,8 @@ class ProductModel {
       image: data?["image"],
       price: data?["price"],
       category: data?["category"],
-      isLike: data?["isLike"] ?? false, id: id,
-
+      isLike: data?["isLike"] ?? false,
+      id: id,
     );
   }
 

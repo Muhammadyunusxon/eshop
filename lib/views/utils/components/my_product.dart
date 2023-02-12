@@ -1,4 +1,3 @@
-import 'package:eshop/controller/product_controller.dart';
 import 'package:eshop/domen/model/product_model.dart';
 import 'package:eshop/views/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +48,7 @@ class MyProduct extends StatelessWidget {
                   right: 0,
                   child: IconButton(
                     icon: SvgPicture.asset(
-                        "assets/svg/${product.isLike ?? false ? "favourite" : "favourite_outline"}.svg"),
+                        "assets/svg/${product.isLike ? "favourite" : "favourite_outline"}.svg"),
                     onPressed: () {
                       context.read<HomeController>().changeLike(index: index,isFav: isFavPage);
                     },
@@ -60,7 +59,7 @@ class MyProduct extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              product.name ?? "",
+             ( product.name?.substring(0,1) ?? "" )+ (product.name?.substring(1) ?? ""),
               overflow: TextOverflow.ellipsis,
               style: Style.textStyleNormal(size: 14),
             ),
