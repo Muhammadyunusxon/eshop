@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "769716082489-sg9qcisfvlttuepl4u6nehd3cfdiakgp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uz.demos.eshop",
+            "certificate_hash": "0b122f8ec927ee7b496bf6aae98ce87bd6ca87db"
+          }
+        },
+        {
           "client_id": "769716082489-850t0dl5n56egkusvksheb5rrdpbbrp3.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "769716082489-850t0dl5n56egkusvksheb5rrdpbbrp3.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "769716082489-4fko51thtb8va3nlc8619kincen1rjqc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "uz.demos.eshop"
+              }
             }
           ]
         }
