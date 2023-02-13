@@ -2,7 +2,7 @@
     package="uz.demos.eshop">
 
    <application
-        android:label="eshop"
+        android:label="E-Shop"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
        <provider
