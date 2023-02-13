@@ -1,5 +1,4 @@
 import 'package:eshop/domen/model/category_model.dart';
-import 'package:eshop/views/pages/product_screen/all_product_screen.dart';
 import 'package:eshop/views/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -50,7 +49,7 @@ class MyCategoryItem extends StatelessWidget {
                 image: category.image,
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24,
