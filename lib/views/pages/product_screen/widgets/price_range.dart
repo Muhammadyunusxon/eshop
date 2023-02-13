@@ -96,7 +96,7 @@ class PriceRange extends StatelessWidget {
           activeColor: kBrandColor,
           values: state.currentRangeValues,
           max: 5000,
-          divisions: 5000,
+          divisions: 1000,
           labels: RangeLabels(
             state.currentRangeValues.start.round().toString(),
             state.currentRangeValues.end.round().toString(),

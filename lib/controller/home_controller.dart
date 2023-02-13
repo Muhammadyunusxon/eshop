@@ -24,10 +24,27 @@ class HomeController extends ChangeNotifier {
   bool isProductLoading = true;
   bool isCategoryLoading = true;
   bool isLoading = false;
-
+  bool isSingleProductLoading = false;
+  ProductModel? singleProduct;
   List<CategoryModel> listOfSelectIndex = [];
 
   RangeValues currentRangeValues = const RangeValues(0, 5000);
+
+  changeSingleProduct(ProductModel newProduct){
+    singleProduct=newProduct;
+    notifyListeners();
+  }
+
+  getSingleProduct(docId) async {
+    isSingleProductLoading = true;
+    notifyListeners();
+    var res =
+    await firestore.collection("products").doc(docId).get();
+    singleProduct = ProductModel.fromJson(data: res.data(), id: res.id);
+    isSingleProductLoading = false;
+    notifyListeners();
+  }
+
 
   createDynamicLink(ProductModel productModel) async {
     Fluttertoast.showToast(
@@ -121,22 +138,33 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
-  changeLike({required int index, bool isFav = false}) async {
-    if (isFav) {
-      listOfFavouriteProduct[index].isLike =
-          !listOfFavouriteProduct[index].isLike;
-      notifyListeners();
-      await firestore
-          .collection("products")
-          .doc(listOfFavouriteProduct[index].id)
-          .update((listOfFavouriteProduct[index]).toJson());
-    } else {
+  changeLike({required int index, bool isFav = false ,ProductModel? product}) async {
+
+    if(product != null){
+      index=listOfProduct.indexOf(product);
       listOfProduct[index].isLike = !listOfProduct[index].isLike;
       notifyListeners();
       await firestore
           .collection("products")
           .doc(listOfProduct[index].id)
           .update((listOfProduct[index]).toJson());
+    }else{
+      if (isFav) {
+        listOfFavouriteProduct[index].isLike =
+        !listOfFavouriteProduct[index].isLike;
+        notifyListeners();
+        await firestore
+            .collection("products")
+            .doc(listOfFavouriteProduct[index].id)
+            .update((listOfFavouriteProduct[index]).toJson());
+      } else {
+        listOfProduct[index].isLike = !listOfProduct[index].isLike;
+        notifyListeners();
+        await firestore
+            .collection("products")
+            .doc(listOfProduct[index].id)
+            .update((listOfProduct[index]).toJson());
+      }
     }
     notifyListeners();
   }
@@ -238,6 +266,8 @@ class HomeController extends ChangeNotifier {
     isProductLoading = true;
     notifyListeners();
     if (name.isEmpty) {
+      setFilter = false;
+      notifyListeners();
       getProduct(isLimit: false);
     } else {
       var res = await firestore.collection("products").orderBy("name").startAt(
@@ -247,6 +277,7 @@ class HomeController extends ChangeNotifier {
         listOfProduct
             .add((ProductModel.fromJson(data: element.data(), id: element.id)));
       }
+      setFilter=true;
     }
     isProductLoading = false;
     notifyListeners();

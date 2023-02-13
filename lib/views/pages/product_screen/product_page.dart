@@ -3,8 +3,11 @@ import 'package:eshop/views/utils/components/my_image_network.dart';
 import 'package:eshop/views/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controller/home_controller.dart';
 import '../../../domen/model/product_model.dart';
 import '../../utils/size_config.dart';
 import '../../utils/style.dart';
@@ -20,52 +23,77 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
-  ProductModel? newProduct;
-  bool isLoading = false;
-  final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
+
     if (widget.product != null) {
-      newProduct = widget.product;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<HomeController>().changeSingleProduct(widget.product!);
+
+      });
     } else {
-      getSingleProduct();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<HomeController>().getSingleProduct(widget.docId);
+      });
     }
+
     super.initState();
   }
 
-  getSingleProduct() async {
-    isLoading = true;
-    setState(() {});
-    var res =
-        await firebaseFirestore.collection("products").doc(widget.docId).get();
-    newProduct = ProductModel.fromJson(data: res.data(), id: res.id);
-    isLoading = false;
-    setState(() {});
-  }
+
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<HomeController>();
+    final event = context.read<HomeController>();
     SizeConfig().init(context);
     return Scaffold(
       backgroundColor: Style.productBgColor,
       appBar: AppBar(
         backgroundColor: kBrandColor,
         title: const Text("Product"),
+        actions: [
+          IconButton(
+            icon: SvgPicture.asset("assets/svg/share.svg",
+                height: 20, color: kWhiteColor),
+            onPressed: () {
+              event.createDynamicLink(state.singleProduct!);
+            },
+          ),
+          12.w.horizontalSpace
+        ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: kBrandColor,))
+      body: state.isSingleProductLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: kBrandColor,
+            ))
           : ListView(
               children: [
-                Container(
-                  height: (SizeConfig.screenHeight ?? 1) / 2.6,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                  child: CustomImageNetwork(
-                    image: newProduct?.image ?? "",
-                    radius: 0,
-                    width: double.infinity,
-                  ),
+                Stack(
+                  children: [
+                    Container(
+                      height: (SizeConfig.screenHeight ?? 1) / 2.6,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
+                      child: CustomImageNetwork(
+                        image: state.singleProduct?.image ?? "",
+                        radius: 0,
+                        width: double.infinity,
+                      ),
+                    ),
+                    Positioned(
+                        right: 20,
+                        bottom: 20,
+                        child: IconButton(
+                          icon: SvgPicture.asset(
+                              "assets/svg/${(state.singleProduct?.isLike ?? false) ? "favourite" : "favourite_outline"}.svg"),
+                          onPressed: () {
+                            context.read<HomeController>().changeLike(product: state.singleProduct, index: 0);
+                          },
+                        )),
+                  ],
                 ),
                 Container(
                   height: (SizeConfig.screenHeight ?? 1) / 1.8,
@@ -79,20 +107,20 @@ class _ProductPageState extends State<ProductPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        (newProduct?.name?.substring(0, 1).toUpperCase() ??
+                        (state.singleProduct?.name?.substring(0, 1).toUpperCase() ??
                                 "") +
-                            (newProduct?.name?.substring(1) ?? ""),
+                            (state.singleProduct?.name?.substring(1) ?? ""),
                         style: Style.textStyleSemiBold(size: 22),
                       ),
                       12.h.verticalSpace,
                       Text(
                         NumberFormat.currency(
                                 locale: 'en', symbol: "\$", decimalDigits: 0)
-                            .format(newProduct?.price),
+                            .format(state.singleProduct?.price),
                         style: Style.textStyleSemiBold(),
                       ),
                       16.h.verticalSpace,
-                      Text("${newProduct?.desc}"),
+                      Text("${state.singleProduct?.desc}"),
                     ],
                   ),
                 ),
