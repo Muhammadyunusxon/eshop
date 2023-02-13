@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 
 import '../domen/model/category_model.dart';
 import '../domen/model/product_model.dart';
-import '../views/utils/style.dart';
 
 class HomeController extends ChangeNotifier {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -30,21 +29,19 @@ class HomeController extends ChangeNotifier {
 
   RangeValues currentRangeValues = const RangeValues(0, 5000);
 
-  changeSingleProduct(ProductModel newProduct){
-    singleProduct=newProduct;
+  changeSingleProduct(ProductModel newProduct) {
+    singleProduct = newProduct;
     notifyListeners();
   }
 
   getSingleProduct(docId) async {
     isSingleProductLoading = true;
     notifyListeners();
-    var res =
-    await firestore.collection("products").doc(docId).get();
+    var res = await firestore.collection("products").doc(docId).get();
     singleProduct = ProductModel.fromJson(data: res.data(), id: res.id);
     isSingleProductLoading = false;
     notifyListeners();
   }
-
 
   createDynamicLink(ProductModel productModel) async {
     Fluttertoast.showToast(
@@ -54,8 +51,7 @@ class HomeController extends ChangeNotifier {
         timeInSecForIosWeb: 1,
         backgroundColor: kMediumColor,
         textColor: kTextDarkColor,
-        fontSize: 16.0
-    );
+        fontSize: 16.0);
     var productLink = 'https://demos.uz/${productModel.id}';
 
     const dynamicLink =
@@ -119,10 +115,11 @@ class HomeController extends ChangeNotifier {
     }
   }
 
-  getProduct({bool isLimit = true,bool isRefresh=false}) async {
-    if(!isRefresh){
-    isProductLoading = true;
-    notifyListeners();}
+  getProduct({bool isLimit = true, bool isRefresh = false}) async {
+    if (!isRefresh) {
+      isProductLoading = true;
+      notifyListeners();
+    }
     QuerySnapshot<Map<String, dynamic>> res;
     if (isLimit) {
       res = await firestore.collection("products").limit(16).get();
@@ -138,20 +135,16 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
   }
 
-  changeLike({required int index, bool isFav = false ,ProductModel? product}) async {
-
-    if(product != null){
-      index=listOfProduct.indexOf(product);
+  changeLike(
+      {required int index, bool isFav = false, ProductModel? product}) async {
+    if (product != null) {
+      index = listOfProduct.indexOf(product);
       listOfProduct[index].isLike = !listOfProduct[index].isLike;
       notifyListeners();
-      await firestore
-          .collection("products")
-          .doc(listOfProduct[index].id)
-          .update((listOfProduct[index]).toJson());
-    }else{
+      await firestore.collection("products").doc(listOfProduct[index].id).update((listOfProduct[index]).toJson());
+    } else {
       if (isFav) {
-        listOfFavouriteProduct[index].isLike =
-        !listOfFavouriteProduct[index].isLike;
+        listOfFavouriteProduct[index].isLike = !listOfFavouriteProduct[index].isLike;
         notifyListeners();
         await firestore
             .collection("products")
@@ -201,7 +194,6 @@ class HomeController extends ChangeNotifier {
     if (listOfSelectIndex.contains(model)) {
       listOfSelectIndex.remove(model);
       getProduct(isLimit: false);
-
     } else {
       setFilter = true;
       listOfSelectIndex.add(model);
@@ -218,7 +210,7 @@ class HomeController extends ChangeNotifier {
         }
       }
     }
-    if(listOfSelectIndex.isEmpty){
+    if (listOfSelectIndex.isEmpty) {
       setFilter = false;
     }
 
@@ -226,7 +218,7 @@ class HomeController extends ChangeNotifier {
   }
 
   getOneCategory(CategoryModel model) async {
-    isCategoryLoading=true;
+    isCategoryLoading = true;
     notifyListeners();
     listOfCategoryProduct.clear();
     var res = await firestore
@@ -238,7 +230,7 @@ class HomeController extends ChangeNotifier {
       listOfCategoryProduct
           .add(ProductModel.fromJson(data: element.data(), id: element.id));
     }
-    isCategoryLoading=false;
+    isCategoryLoading = false;
     notifyListeners();
   }
 
@@ -277,7 +269,7 @@ class HomeController extends ChangeNotifier {
         listOfProduct
             .add((ProductModel.fromJson(data: element.data(), id: element.id)));
       }
-      setFilter=true;
+      setFilter = true;
     }
     isProductLoading = false;
     notifyListeners();
