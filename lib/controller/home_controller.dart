@@ -102,12 +102,13 @@ class HomeController extends ChangeNotifier {
     }
   }
 
-  getProduct({bool isLimit = true}) async {
+  getProduct({bool isLimit = true,bool isRefresh=false}) async {
+    if(!isRefresh){
     isProductLoading = true;
-    notifyListeners();
+    notifyListeners();}
     QuerySnapshot<Map<String, dynamic>> res;
     if (isLimit) {
-      res = await firestore.collection("products").limit(12).get();
+      res = await firestore.collection("products").limit(16).get();
     } else {
       res = await firestore.collection("products").get();
     }
