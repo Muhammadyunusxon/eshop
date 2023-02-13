@@ -1,29 +1,44 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eshop/views/utils/constants.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_share/flutter_share.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 import '../domen/model/category_model.dart';
 import '../domen/model/product_model.dart';
+import '../views/utils/style.dart';
 
 class HomeController extends ChangeNotifier {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
 
   List<ProductModel> listOfProduct = [];
+  List<ProductModel> listOfCategoryProduct = [];
   List<ProductModel> listOfFavouriteProduct = [];
   List<CategoryModel> listOfCategory = [];
   bool setFilter = false;
   bool isProductLoading = true;
+  bool isCategoryLoading = true;
   bool isLoading = false;
+
   List<CategoryModel> listOfSelectIndex = [];
 
   RangeValues currentRangeValues = const RangeValues(0, 5000);
 
   createDynamicLink(ProductModel productModel) async {
+    Fluttertoast.showToast(
+        msg: "Ulashilmoqda",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: kMediumColor,
+        textColor: kTextDarkColor,
+        fontSize: 16.0
+    );
     var productLink = 'https://demos.uz/${productModel.id}';
 
     const dynamicLink =
@@ -59,7 +74,7 @@ class HomeController extends ChangeNotifier {
       title: "Description: ${productModel.desc}",
       linkUrl: shareLink,
     );
-
+    Fluttertoast.cancel();
     debugPrint(shareLink);
   }
 
@@ -92,7 +107,7 @@ class HomeController extends ChangeNotifier {
     notifyListeners();
     QuerySnapshot<Map<String, dynamic>> res;
     if (isLimit) {
-      res = await firestore.collection("products").limit(10).get();
+      res = await firestore.collection("products").limit(12).get();
     } else {
       res = await firestore.collection("products").get();
     }
@@ -109,6 +124,7 @@ class HomeController extends ChangeNotifier {
     if (isFav) {
       listOfFavouriteProduct[index].isLike =
           !listOfFavouriteProduct[index].isLike;
+      notifyListeners();
       await firestore
           .collection("products")
           .doc(listOfFavouriteProduct[index].id)
@@ -177,6 +193,23 @@ class HomeController extends ChangeNotifier {
       setFilter = false;
     }
 
+    notifyListeners();
+  }
+
+  getOneCategory(CategoryModel model) async {
+    isCategoryLoading=true;
+    notifyListeners();
+    listOfCategoryProduct.clear();
+    var res = await firestore
+        .collection("products")
+        .where("category", isEqualTo: model.id)
+        .get();
+
+    for (var element in res.docs) {
+      listOfCategoryProduct
+          .add(ProductModel.fromJson(data: element.data(), id: element.id));
+    }
+    isCategoryLoading=false;
     notifyListeners();
   }
 
