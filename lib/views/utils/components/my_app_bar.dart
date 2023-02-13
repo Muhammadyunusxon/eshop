@@ -5,10 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-import '../../../utils/style.dart';
+import '../style.dart';
 
 class MyAppBar extends StatelessWidget {
-  const MyAppBar({Key? key}) : super(key: key);
+  final String categoryName;
+
+  const MyAppBar({Key? key, this.categoryName = ''}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,15 @@ class MyAppBar extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 10.h),
       child: Row(
         children: [
-          Spacer(),
+          categoryName.isNotEmpty
+              ? IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: SvgPicture.asset("assets/svg/arrow_back.svg"),
+                )
+              : const SizedBox.shrink(),
+          const Spacer(),
           Wrap(
             spacing: 5,
             children: [
@@ -30,10 +40,14 @@ class MyAppBar extends StatelessWidget {
             ],
           ),
           Text(
-            state.setFilter ? "" : "All",
+            state.setFilter
+                ? ""
+                : categoryName.isNotEmpty
+                    ? categoryName
+                    : "All",
             style: Style.textStyleSemiBold(size: 18),
           ),
-          Spacer(),
+          const Spacer(),
           IconButton(
             onPressed: () {
               showBottomSheet(

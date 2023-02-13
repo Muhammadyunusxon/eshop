@@ -26,9 +26,6 @@ class MyProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onDoubleTap: () {
-        context.read<HomeController>().createDynamicLink(product);
-      },
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => ProductPage(
@@ -60,34 +57,50 @@ class MyProduct extends StatelessWidget {
                 Positioned(
                     right: 0,
                     child: IconButton(
-                      icon: SvgPicture.asset(
-                          "assets/svg/${product.isLike ? "favourite" : "favourite_outline"}.svg"),
+                      icon: SvgPicture.asset("assets/svg/share.svg",height: 20,),
                       onPressed: () {
-                        context
-                            .read<HomeController>()
-                            .changeLike(index: index, isFav: isFavPage);
+                        context.read<HomeController>().createDynamicLink(product);
                       },
                     )),
               ],
             ),
-            5.verticalSpace,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                (product.name?.substring(0, 1).toUpperCase() ?? "") +
-                    (product.name?.substring(1) ?? ""),
-                overflow: TextOverflow.ellipsis,
-                style: Style.textStyleNormal(size: 14),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                NumberFormat.currency(
-                        locale: 'en', symbol: "\$", decimalDigits: 0)
-                    .format(product.price),
-                style: Style.textStyleNormal(size: 14),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      5.verticalSpace,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          (product.name?.substring(0, 1).toUpperCase() ?? "") +
+                              (product.name?.substring(1) ?? ""),
+                          overflow: TextOverflow.ellipsis,
+                          style: Style.textStyleNormal(size: 14),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          NumberFormat.currency(
+                                  locale: 'en', symbol: "\$", decimalDigits: 0)
+                              .format(product.price),
+                          style: Style.textStyleNormal(size: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: SvgPicture.asset(
+                      "assets/svg/${product.isLike ? "favourite" : "favourite_outline"}.svg"),
+                  onPressed: () {
+                    context
+                        .read<HomeController>()
+                        .changeLike(index: index, isFav: isFavPage);
+                  },
+                )
+              ],
             ),
           ],
         ),
